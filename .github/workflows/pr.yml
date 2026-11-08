@@ -1,0 +1,31 @@
+name: jira-pr
+
+# Issue key comes from the start of the PR description/title (e.g. "TESTAPP-1: ...").
+#   opened/reopened/ready_for_review -> transition issue to In Review
+#   merged                           -> ensure VERSION exists + append to issue
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, closed]
+
+permissions: {}
+
+jobs:
+  jira:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4        # first-party; pin to a SHA to harden
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node scripts/on-pr.mjs
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ vars.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          # PR text passed as env (never interpolated into shell) to avoid injection:
+          PR_ACTION: ${{ github.event.action }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          REVIEW_STATUS: In Review
