@@ -2,7 +2,7 @@ name: jira-pr
 
 # Issue key comes from the start of the PR description/title (e.g. "TESTAPP-1: ...").
 #   opened/reopened/ready_for_review -> transition issue to In Review
-#   merged                           -> ensure VERSION exists + append to issue
+#   merged                           -> transition issue to Done
 on:
   pull_request:
     types: [opened, reopened, ready_for_review, closed]
@@ -29,3 +29,4 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           REVIEW_STATUS: In Review
+          DONE_STATUS: Done
