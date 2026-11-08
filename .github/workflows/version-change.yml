@@ -1,0 +1,25 @@
+name: jira-version-change
+
+# When the top-level VERSION file changes on master, ensure that fix version
+# exists in Jira (create if absent).
+on:
+  push:
+    branches: [master]
+    paths: ["VERSION"]
+
+permissions: {}
+
+jobs:
+  ensure-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4        # first-party; pin to a SHA to harden
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - run: node scripts/on-version-change.mjs
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_EMAIL: ${{ vars.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          PROJECT_KEY: ${{ vars.JIRA_PROJECT_KEY }}
